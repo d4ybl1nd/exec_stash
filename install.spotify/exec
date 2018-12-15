@@ -1,0 +1,56 @@
+#! /bin/sh
+
+# enable nux repo and install spotify
+rpm --import http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro 
+sudo yum -y install epel-release && rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
+sudo yum install spotify-client -y 
+
+ffmpegPkg() {
+    # i found info from 
+    # [https://community.spotify.com/t5/Desktop-Linux/Ubuntu-This-song-is-not-available-Blue-Bar/td-p/1619918]
+     # simply; libavcodec/libavformat/libavutil --> ffmpeg
+    sudo yum install -q -y\
+        ffmpeg-libs.x86_64\
+        mlt-ffmpeg.x86_64\
+        ffmpeg.x86_64\
+        ffmpeg-compat.x86_64\
+        ffmpeg2theora.x86_64\
+        ffmpegthumbnailer.x86_64\
+        ffms2.x86_64 winff.x86_64
+    echo "Packages installed for ffmpeg playback."
+}
+
+pulseaudioEQ() {
+    sudo yum install -q -y pulseaudio-qpaeq
+    echo "Equalizer launch command is 'qpaeq'"
+    echo "You know what to do after"
+    qpaeq
+}
+
+while true; do
+    read -p "Would you like to play local files on spotify [y/n]? " yn
+    case $yn in
+        [Yy]* ) ffmpegPkg; break;;
+        [Nn]* ) break;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+
+while true; do
+    read -p "Would you like to install Eqalizer for pulse-audio [y/n]? " yn
+    case $yn in
+        [Yy]* ) pulseaudioEQ; break;;
+        [Nn]* ) break;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+
+
+
+
+
+
+
+# if you already tried to import local files, you might want to delete spotify storage cache files as 
+# rm -rf /home/$USER/.cache/spotify/Storage
+
