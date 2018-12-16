@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# [@Repo]
+sudo yum install -y\
+    epel-release\
+    gtk-xfce-engine\
+    gtk-murrine-engine\
+    gtk3\
+    
+sudo yum groupinstall "X window System" 
+sudo yum groupinstall xfce 
+sudo systemctl isolate graphical.target
