@@ -2,7 +2,7 @@
 
 # ***************************************************************************
 # git installation script.
-# rhel should work find with the script, for other distros might won't work. 
+# rhel should work fine with the script, for other distros might won't work. 
 # tested and working on Centos7
 # ***************************************************************************
 
