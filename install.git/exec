@@ -6,11 +6,11 @@
 # tested and working on Centos7
 # ***************************************************************************
 
-targetFile="/etc/yum.conf"
-grepResult=$(grep -F 'exclude' $targetFile)
+TARGETFILE="/etc/yum.conf"
+GREPRESULT=$(grep -F 'exclude' $TARGETFILE)
 
 function getLineNumber {
-    local LN=$(grep -n "${1}" $targetFile | grep -Eo '^[^:]+') 
+    local LN=$(grep -n "${1}" $TARGETFILE | grep -Eo '^[^:]+') 
     echo $LN;
 }
 
@@ -18,37 +18,37 @@ function addExcludeEntry {
     echo " * adding excluding entry for git and git2u packages."
     local declare LN=$(( $( getLineNumber "distroverpkg") + 1 ))
     local EXC_ENTRY+="exclude=git.x86_64 git2u.x86_64"
-    sudo sed -i "$((LN))i$EXC_ENTRY" "$targetFile"
+    sudo sed -i "$((LN))i$EXC_ENTRY" "$TARGETFILE"
 }
 
 function appendToExlcude {
     # should not include if git and git2u is already added in entry.
     echo " * excldue entry exist. appending git and git2u to excluded packages."
-    local EXC_ENTRY=$(echo $grepResult | cut -d'=' -f 2)
+    local EXC_ENTRY=$(echo $GREPRESULT | cut -d'=' -f 2)
     local LN=$( getLineNumber "exclude" )
 
-    if [[ $grepResult != *"git.x86_64"* ]]; then
-    echo " * git.x86_64 not included"
-    EXC_ENTRY="$EXC_ENTRY git.x86_64"
+    if [[ $GREPRESULT != *"git.x86_64"* ]]; then
+        echo " * git.x86_64 not included"
+        EXC_ENTRY="$EXC_ENTRY git.x86_64"
     fi
 
-    if [[ $grepResult != *"git2u.x86_64"* ]]; then
-    echo " * git2u.x86_64 not included"
-    EXC_ENTRY="$EXC_ENTRY git2u.x86_64"
+    if [[ $GREPRESULT != *"git2u.x86_64"* ]]; then
+        echo " * git2u.x86_64 not included"
+        EXC_ENTRY="$EXC_ENTRY git2u.x86_64"
     fi
 
     read -a ENTRY <<< "$EXC_ENTRY"
     ENTRY="${ENTRY[*]}"
-    sudo sed -i "$((LN))s/.*/exclude=$ENTRY/" "$targetFile"
+    sudo sed -i "$((LN))s/.*/exclude=$ENTRY/" "$TARGETFILE"
 }
 
 function excludeGit {
-    if [[ "$grepResult" == '' ]]; then
-    # entry not found
-    addExcludeEntry
+    if [[ "$GREPRESULT" == '' ]]; then
+        # entry not found
+        addExcludeEntry
     else
-    # entry found 
-    appendToExlcude
+        # entry found 
+        appendToExlcude
     fi
 }
 
@@ -56,8 +56,8 @@ while true; do
     echo "=========================================================================="
     echo " * If you update git through yum after this installation, yum will"
     echo " * override the symlink that the script has created and will change"
-    echo " * git to the latest version of what Centos Base repo provide."
-    echo " * To prevent such update, git and git2u could be excluded from updating."
+    echo " * git to the latest version which Centos Base repo provide."
+    echo " * To prevent such updates, git and git2u could be excluded from updating."
     echo "=========================================================================="
     read -p "Do you wish to exclude git and git2 from Centos Base Repo [y/n]? " yn
     case $yn in
@@ -71,39 +71,39 @@ function buildGit {
     # install packages to compile and build the git from the source. 
     # complier and devlibs
     sudo yum install -y\
-    gcc\
-    perl-CPAN\
-    perl-devel\
-    curl-devel\
-    expat-devel\
-    openssl-devel\
-    zlib-devel 
+        gcc\
+        perl-CPAN\
+        perl-devel\
+        curl-devel\
+        expat-devel\
+        openssl-devel\
+        zlib-devel 
 
     # remove existing current bin or symlink
-    gitPWD=$(which git)
-    if [[ -a "$gitPWD" ]]; then 
-    sudo yum remove -y git
-    sudo rm -f "$gitPWD"
+    GITPWD=$(which git)
+    if [[ -a "$GITPWD" ]]; then 
+        sudo yum remove -y git
+        sudo rm -f "$GITPWD"
     fi
     
-    tarGzSrc=$(basename $1)    
-    srcDirBuffer="$(echo $tarGzSrc | sed s/.tar.gz//)"
-    srcDirName=${srcDirBuffer/v/git-}
+    TARGZSRC=$(basename $1)    
+    SRCDIRBUFFER="$(echo $TARGZSRC | sed s/.tar.gz//)"
+    SRCDIRNAME=${SRCDIRBUFFER/v/git-}
     
     # download tar.gz
-    mkdir -p ~/Downloads
-    cd ~/Downloads 
-    wget $1
+    sudo mkdir -p /usr/src
+    sudo cd /usr/src 
+    sudo wget $1
 
     # unzip and start build
-    tar zxvf $tarGzSrc 
-    cd $srcDirName
+    sudo tar zxvf $TARGZSRC 
+    cd $SRCDIRNAME
     sudo make prefix=/usr/share/git all
     sudo make prefix=/usr/share/git install
     sudo ln -s /usr/share/git/bin/git /usr/bin
     cd ..
-    rm -f $tarGzSrc
-    sudo rm -rf $srcDirName
+    sudo rm -f $TARGZSRC
+    sudo rm -rf $SRCDIRNAME
     git --version
 }
 
@@ -114,7 +114,7 @@ if [[ -n "$1" && "$1" == *"https://github.com/git/git/archive/"* &&  "$1" == *".
         crntPWD="$PWD"
         buildGit $1
         cd "$crntPWD"
-        else
+    else
         echo "not found"
         echo "invalid version fed. Exiting."
         exit
@@ -125,7 +125,7 @@ else
     echo " * https://github.com/git/git/releases"
     echo " * Copy download link of tar.gz of the version you would like to build"
     echo " * and pass the link on excute."
-    exit;
+    exit
 fi 
 
 
