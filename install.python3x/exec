@@ -1,0 +1,81 @@
+#! /bin/bash
+
+# ##############################################################################
+# The IUS RHEL repo has ready to go RPM packages of 
+# python34u-pip, python35u-pip, and python36u-pip. 
+# ##############################################################################
+
+
+function download_and_install() {
+    PY_COMPFILE=$(basename $1)
+    PY_DIRNAME=${PY_COMPFILE/.tgz/}
+    sudo wget "$1" -P /usr/src
+    sudo tar xzf "/usr/src/$PY_COMPFILE" -C /usr/src
+    cd "/usr/src/$PY_COMPFILE/"
+
+    # MAYBE USER NEEDS TO BE ABLE TO CHOOSE IF THEY WANT TO INSTALL PYTHON AS ROOT 
+    # FOR NOW, I WANT TO BIND PIP WITH PYTHON3.7 
+    # THE ISSUE WITH VANILLA INSTALLATION CONFIG IS THAT THE PREFIX IS /usr/local 
+    # WHICH MAKES ROOT WILL NOT HAVE DEFAULT LINKED BIN
+    # SETTING PREFIX TO /usr IS THE SAME WAY AS HOW THE PYTHON INSTALLED FROM YUM PACKAGE MANAGER
+    sudo ./configure --prefix=/usr --enable-optimizations --enable-shared
+    sudo make altinstall
+
+    sudo rm -f /usr/src/"$PY_COMPFILE"
+    sudo rm -rf /usr/src/"$PY_DIRNAME"
+    python3.7 -V
+}
+
+function install_pip18() {
+    sudo python3.7 -m ensurepip --upgrade
+    sudo easy_install-3.7 pip
+
+    # GOING BACK TO WORKING DIR
+    cd $WORKING_DIR 
+    echo '---------------------------------------------------------'
+    pip -V
+    echo '---------------------------------------------------------'
+    sudo ldconfig
+
+    # people said to fix the libpython load error can be resolved via
+    # export LD_LIBRARY_PATH=[your python path to libpython3.4m.so]
+    # ldconfig solves it. 
+}
+
+if [[ -n "$1" && "$1" == *"https://www.python.org/ftp/python/"* &&  "$1" == *".tgz" ]]; then
+    URL_CHECK=`wget --server-response --spider "$1"  2>&1 | grep 'HTTP/1.1 200 OK'`
+    if [[ $URL_CHECK ]]; then
+        echo "Installtion Start."
+        CRNTPWD="$PWD"
+        download_and_install $1
+        cd "$CRNTPWD"
+    else
+        echo "not found: invalid url fed."
+        echo "Please copy the link of tgz. Exiting."
+        exit
+    fi    
+else
+    echo "=========================================================================="
+    echo " * Download URL is not provided or incorrect. Go to;"
+    echo " * https://www.python.org/ftp/python/"
+    echo " * Copy download link of tar.gz of the version you would like to build"
+    echo " * and pass the link on excute."
+    exit
+fi 
+
+WORKING_DIR=$PWD
+
+# INSTALLATION START
+sudo yum install -y\
+    gcc\
+    libffi-devel\
+    openssl-devel\
+    bzip2-devel\
+    gcc\
+    gcc-c++\
+    zlib\
+    zlib-devel\
+    subversion\
+    bzr\
+    mercurial
+
