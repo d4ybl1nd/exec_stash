@@ -1,7 +1,7 @@
 
-Current build of CentOS uses 2.33 of util-linux. [:Bug Tracker](https://bugs.centos.org/view.php?id=15170)
+Current build of CentOS uses 2.23.2 of util-linux. [:Bug Tracker](https://bugs.centos.org/view.php?id=15170)
 
-There's way to install util-linux 2.29 <= [:Build Service](https://cbs.centos.org/koji/packageinfo?packageID=146)
+There's way to install util-linux <= 2.29.X [:Build Service](https://cbs.centos.org/koji/packageinfo?packageID=146)
 
 [-> rpm info](https://cbs.centos.org/koji/rpminfo?rpmID=81561)
 
