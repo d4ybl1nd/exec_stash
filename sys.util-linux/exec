@@ -1,0 +1,83 @@
+#!/bin/bash
+
+echo "RUN THIS AT YOUR OWN RISK!"
+echo "Don't cancel the task once it has been started"
+
+WORKINGPWD="$PWD"
+cd ~/Downloads/
+
+wget https://cbs.centos.org/kojifiles/packages/util-linux/2.29/2.el7/x86_64/libblkid-2.29-2.el7.x86_64.rpm
+echo "installation start for : libblkid-2.29-2.el7.x86_64"
+sudo yum localinstall -y libblkid-2.29-2.el7.x86_64.rpm
+
+wget https://cbs.centos.org/kojifiles/packages/util-linux/2.29/2.el7/x86_64/libblkid-devel-2.29-2.el7.x86_64.rpm
+echo "installation start for : libblkid-devel-2.29-2.el7.x86_64"
+sudo yum localinstall -y libblkid-devel-2.29-2.el7.x86_64.rpm
+
+wget https://cbs.centos.org/kojifiles/packages/util-linux/2.29/2.el7/x86_64/libfdisk-2.29-2.el7.x86_64.rpm
+echo "installation start for : libfdisk-2.29-2.el7.x86_64"
+sudo yum localinstall -y libfdisk-2.29-2.el7.x86_64.rpm
+
+wget https://cbs.centos.org/kojifiles/packages/util-linux/2.29/2.el7/x86_64/libfdisk-devel-2.29-2.el7.x86_64.rpm
+echo "installation start for : libfdisk-devel-2.29-2.el7.x86_64"
+sudo yum localinstall -y libfdisk-devel-2.29-2.el7.x86_64.rpm
+
+wget https://cbs.centos.org/kojifiles/packages/util-linux/2.29/2.el7/x86_64/libmount-2.29-2.el7.x86_64.rpm
+echo "installation start for : libmount-2.29-2.el7.x86_64"
+sudo yum localinstall -y libmount-2.29-2.el7.x86_64.rpm
+
+wget https://cbs.centos.org/kojifiles/packages/util-linux/2.29/2.el7/x86_64/libsmartcols-2.29-2.el7.x86_64.rpm
+echo "installation start for : libsmartcols-2.29-2.el7.x86_64"
+sudo yum localinstall -y libsmartcols-2.29-2.el7.x86_64.rpm
+
+wget https://cbs.centos.org/kojifiles/packages/util-linux/2.29/2.el7/x86_64/libsmartcols-devel-2.29-2.el7.x86_64.rpm
+echo "installation start for : libsmartcols-devel-2.29-2.el7.x86_64"
+sudo yum localinstall -y libsmartcols-devel-2.29-2.el7.x86_64.rpm
+
+wget https://cbs.centos.org/kojifiles/packages/util-linux/2.29/2.el7/x86_64/libuuid-2.29-2.el7.x86_64.rpm
+echo "installation start for : libuuid-2.29-2.el7.x86_64"
+sudo yum localinstall -y libuuid-2.29-2.el7.x86_64.rpm
+
+wget https://cbs.centos.org/kojifiles/packages/util-linux/2.29/2.el7/x86_64/libuuid-devel-2.29-2.el7.x86_64.rpm
+echo "installation start for : libuuid-devel-2.29-2.el7.x86_64."
+sudo yum localinstall -y libuuid-devel-2.29-2.el7.x86_64.rpm 
+
+wget https://cbs.centos.org/kojifiles/packages/util-linux/2.29/2.el7/x86_64/python-libmount-2.29-2.el7.x86_64.rpm
+echo "installation start for : python-libmount-2.29-2.el7.x86_64"
+sudo yum localinstall -y python-libmount-2.29-2.el7.x86_64.rpm
+
+wget https://cbs.centos.org/kojifiles/packages/util-linux/2.29/2.el7/x86_64/util-linux-user-2.29-2.el7.x86_64.rpm
+echo "installation start for : util-linux-user-2.29-2.el7.x86_64."
+sudo yum localinstall -y util-linux-user-2.29-2.el7.x86_64.rpm 
+
+wget https://cbs.centos.org/kojifiles/packages/util-linux/2.29/2.el7/x86_64/uuidd-2.29-2.el7.x86_64.rpm
+echo "installation start for : uuidd-2.29-2.el7.x86_64"
+sudo yum localinstall -y uuidd-2.29-2.el7.x86_64.rpm
+
+wget https://cbs.centos.org/kojifiles/packages/util-linux/2.29/2.el7/x86_64/util-linux-debuginfo-2.29-2.el7.x86_64.rpm
+echo "installation start for : util-linux-debuginfo-2.29-2.el7.x86_64"
+sudo yum localinstall -y util-linux-debuginfo-2.29-2.el7.x86_64.rpm
+
+wget https://cbs.centos.org/kojifiles/packages/util-linux/2.29/2.el7/x86_64/util-linux-2.29-2.el7.x86_64.rpm
+echo "installation start for : util-linux-2.29-2.el7.x86_64"
+sudo yum localinstall -y util-linux-2.29-2.el7.x86_64.rpm
+
+
+rm "libblkid-2.29-2.el7.x86_64.rpm"
+rm "libblkid-devel-2.29-2.el7.x86_64.rpm"
+rm "libfdisk-2.29-2.el7.x86_64.rpm"
+rm "libfdisk-devel-2.29-2.el7.x86_64.rpm"
+rm "libmount-2.29-2.el7.x86_64.rpm"
+rm "libsmartcols-2.29-2.el7.x86_64.rpm"
+rm "libsmartcols-devel-2.29-2.el7.x86_64.rpm"
+rm "libuuid-2.29-2.el7.x86_64.rpm"
+rm "libuuid-devel-2.29-2.el7.x86_64..rpm"
+rm "python-libmount-2.29-2.el7.x86_64.rpm"
+rm "util-linux-user-2.29-2.el7.x86_64..rpm"
+rm "uuidd-2.29-2.el7.x86_64.rpm"
+rm "util-linux-debuginfo-2.29-2.el7.x86_64.rpm"
+rm "util-linux-2.29-2.el7.x86_64.rpm"
+
+cd $WORKINGPWD
+
+yum info util-linux
