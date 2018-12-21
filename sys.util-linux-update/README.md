@@ -9,6 +9,8 @@ There's way to install util-linux 2.29 <= [:Build Service](https://cbs.centos.or
 
 some of basic unix tools were missing a lots of options
 
+Going to add a script to sort this out. 
+
 So, here is the list.
 
 ## Dependencies
