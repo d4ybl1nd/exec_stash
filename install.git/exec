@@ -21,7 +21,7 @@ function addExcludeEntry {
     sudo sed -i "$((LN))i$EXC_ENTRY" "$TARGETFILE"
 }
 
-function appendToExlcude {
+function appendToExclude {
     # should not include if git and git2u is already added in entry.
     echo " * excldue entry exist. appending git and git2u to excluded packages."
     local EXC_ENTRY=$(echo $GREPRESULT | cut -d'=' -f 2)

@@ -80,4 +80,4 @@ rm "util-linux-2.29-2.el7.x86_64.rpm"
 
 cd $WORKINGPWD
 
-yum info util-linux
+yumdb info util-linux

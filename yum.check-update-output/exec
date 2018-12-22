@@ -1,0 +1,140 @@
+#!/bin/bash
+
+# --simple-list -s (default)
+# --detail -d
+# --compare -c
+
+SPLITLINE=""
+COLUMNS=$(tput cols)
+ROWS=$(tput lines)
+TWIDTH=$((COLUMNS/5))
+WIDTHFILLER=$((COLUMNS-(TWIDTH*5)))
+
+set_spliter() {
+    local idx
+    local idx=0
+    while [ $idx -lt "$COLUMNS" ]
+    do
+        SPLITLINE+="="
+        idx=$[$idx+1]
+    done
+}; set_spliter
+
+whitespace_fill() {
+    local whitepace_len=$(($1-${#2}))
+    local idx=0
+    local spaces=""
+    while [ $idx -lt "$whitepace_len" ]
+    do
+        spaces+=" "
+        idx=$[$idx+1]
+    done
+    [[ "$3" == "r" ]] && echo "$spaces${2}" || echo "${2}$spaces"
+}
+
+output_header() {
+    local HEADER_PKGNAME="$(whitespace_fill $((TWIDTH+WIDTHFILLER)) 'Package')"
+    local HEADER_ARCH="$(whitespace_fill $TWIDTH 'Arch')"
+    local HEADER_VER="$(whitespace_fill $TWIDTH 'Version')"
+    local HEADER_RELEASE="$(whitespace_fill $TWIDTH 'Release')"
+    local HEADER_REPO="$(whitespace_fill $TWIDTH 'Repository' r)"
+    echo "$SPLITLINE\n$HEADER_PKGNAME$HEADER_ARCH$HEADER_VER$HEADER_RELEASE$HEADER_REPO\n$SPLITLINE\n"
+}
+
+ask_update() {
+    echo ""
+    read -p $'Would you like to update the packages?. [y/n] ?' yn
+    case $yn in
+        [Yy]* ) sudo yum update -y; break;;
+        [Nn]* ) exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+}
+
+simple_output() {
+    local PKGINFO=("$@")
+    echo $SPLITLINE
+    echo "[."
+    for PCK in "${PKGINFO[@]}"
+    do
+        read -a PKGIS <<< "$PCK"
+        echo "${PKGIS[0]}"
+    done
+    ask_update
+}
+
+detailed_output() {
+    local PKGINFO=("$@")
+    echo 
+    echo "[${#PKGINFO[@]}] Packages are marked to upgrade."
+    echo 
+    HEADER=$(output_header)
+    OUTPUT=""
+
+    for PKG in "${PKGINFO[@]}"
+    do
+        read -a PKGIS <<< "$PKG"
+
+        NA="${PKGIS[0]}"
+        NA_BUFFER=${NA/./' '}
+        read -a NAARR <<< "$NA_BUFFER"
+
+        VR="${PKGIS[1]}"
+        VR_BUFFER=${VR/-/' '}
+        read -a VRARR <<< "$VR_BUFFER"
+
+        PKGNAME="$(whitespace_fill $((TWIDTH+WIDTHFILLER)) ${NAARR[0]})"
+        ARCH="$(whitespace_fill $TWIDTH ${NAARR[1]})"
+        VER="$(whitespace_fill $TWIDTH ${VRARR[0]})"
+        RELEASE="$(whitespace_fill $TWIDTH ${VRARR[1]})"
+        REPO="$(whitespace_fill $TWIDTH ${PKGIS[2]} r)"
+        OUTPUT+="$PKGNAME$ARCH$VER$RELEASE$REPO\n"
+    done
+    printf "$HEADER$OUTPUT"
+    ask_update
+}
+
+compare_output() {
+    echo ""
+}
+
+check_update() {
+    echo "checking yum repositories...."
+    UPDATELIST="$(yum check-update)"
+    local MODE=$1
+    local PKGLISTSTART=0
+    declare -i idx
+    declare -a PKGLIST
+    idx=0
+
+    while IFS= read -r line
+    do
+        if [[ $PKGLISTSTART -eq 1 ]]; then 
+            read -a ENTRY <<< "$line"
+            PKGLIST["$idx"]="${ENTRY[*]}"
+            idx+=1
+        fi
+        [[ -z "$line" ]] && PKGLISTSTART=1
+    done < <(printf '%s\n' "$UPDATELIST")
+    "$MODE" "${PKGLIST[@]}"
+}
+
+
+
+MODE=simple_output
+
+usage() { echo "zxczxczxczxc: " 1>&2; exit 1; }
+while getopts ':c :d' OTP; do
+    case "$OTP" in
+    c)  MODE=compare_output ;;
+    d)  MODE=detailed_output ;;
+    ?)  usage; exit 1;; 
+    esac
+done
+
+shift $(($OPTIND - 1))
+check_update "$MODE"
+
+
+
+
