@@ -7,8 +7,7 @@
 SPLITLINE=""
 COLUMNS=$(tput cols)
 ROWS=$(tput lines)
-TWIDTH=$((COLUMNS/5))
-WIDTHFILLER=$((COLUMNS-(TWIDTH*5)))
+
 
 set_spliter() {
     local idx
@@ -33,17 +32,24 @@ whitespace_fill() {
 }
 
 output_header() {
+    local TWIDTH=$1
+    local WIDTHFILLER=$2
     local HEADER_PKGNAME="$(whitespace_fill $((TWIDTH+WIDTHFILLER)) 'Package')"
     local HEADER_ARCH="$(whitespace_fill $TWIDTH 'Arch')"
     local HEADER_VER="$(whitespace_fill $TWIDTH 'Version')"
     local HEADER_RELEASE="$(whitespace_fill $TWIDTH 'Release')"
+    local HEADER_SIZE="$(whitespace_fill $TWIDTH 'Size')"
     local HEADER_REPO="$(whitespace_fill $TWIDTH 'Repository' r)"
-    echo "$SPLITLINE\n$HEADER_PKGNAME$HEADER_ARCH$HEADER_VER$HEADER_RELEASE$HEADER_REPO\n$SPLITLINE\n"
+    if [[ -n $3 ]]; then
+        echo "$SPLITLINE\n$HEADER_PKGNAME$HEADER_ARCH$HEADER_VER$HEADER_RELEASE$HEADER_SIZE$HEADER_REPO\n$SPLITLINE\n"
+    else 
+        echo "$SPLITLINE\n$HEADER_PKGNAME$HEADER_ARCH$HEADER_VER$HEADER_RELEASE$HEADER_REPO\n$SPLITLINE\n"
+    fi
 }
 
 ask_update() {
     echo ""
-    read -p $'Would you like to update the packages?. [y/n] ?' yn
+    read -p $'Would you like to update the packages?. [y/n] ? ' yn
     case $yn in
         [Yy]* ) sudo yum update -y; break;;
         [Nn]* ) exit;;
@@ -54,7 +60,7 @@ ask_update() {
 simple_output() {
     local PKGINFO=("$@")
     echo $SPLITLINE
-    echo "[."
+    echo 
     for PCK in "${PKGINFO[@]}"
     do
         read -a PKGIS <<< "$PCK"
@@ -64,11 +70,13 @@ simple_output() {
 }
 
 detailed_output() {
+    local TWIDTH=$((COLUMNS/5))
+    local WIDTHFILLER=$((COLUMNS-(TWIDTH*5)))
     local PKGINFO=("$@")
     echo 
     echo "[${#PKGINFO[@]}] Packages are marked to upgrade."
     echo 
-    HEADER=$(output_header)
+    HEADER=$(output_header $TWIDTH $WIDTHFILLER)
     OUTPUT=""
 
     for PKG in "${PKGINFO[@]}"
@@ -91,11 +99,69 @@ detailed_output() {
         OUTPUT+="$PKGNAME$ARCH$VER$RELEASE$REPO\n"
     done
     printf "$HEADER$OUTPUT"
+    echo
     ask_update
 }
 
+clean_yum_info() {
+    VAR="$1"
+    VAR=${VAR/$2/}
+    VAR=${VAR/:/}
+    VAR=$(echo $VAR | tr -d "[:blank:]") 
+    echo "$VAR"
+}
+
 compare_output() {
-    echo ""
+    local TWIDTH=$((COLUMNS/6))
+    local WIDTHFILLER=$((COLUMNS-(TWIDTH*6)))
+    local PKGINFO=("$@")
+    echo 
+    echo "[${#PKGINFO[@]}] Packages are marked to upgrade."
+    echo 
+    HEADER=$(output_header $TWIDTH $WIDTHFILLER compare)
+    OUTPUT=""
+
+    for PKG in "${PKGINFO[@]}"
+    do
+        read -a PKGIS <<< "$PKG"
+        YUMINFO="$(yum info -q ${PKGIS[0]})"
+        VERLN=$(echo "$YUMINFO" | awk '/Version/{++n; if (n==1) { print NR; exit}}')
+        INSTDPKGSIZELN=$(echo "$YUMINFO" | awk '/Size/{++n; if (n==1) { print NR; exit}}')
+        UDTPKGSIZELN=$(echo "$YUMINFO" | awk '/Size/{++n; if (n==2) { print NR; exit}}')
+
+        INSTALLEDVER=$(echo "$YUMINFO" | sed "${VERLN}q;d")
+        echo "Reading yum info ${PKGIS[0]}"
+        INSTALLEDVER=$(clean_yum_info "$INSTALLEDVER" "Version")
+
+        CUR_SIZE=$(echo "$YUMINFO" | sed "${INSTDPKGSIZELN}q;d")
+        NEW_SIZE=$(echo "$YUMINFO" | sed "${UDTPKGSIZELN}q;d")
+
+        CUR_SIZE=$(clean_yum_info "$CUR_SIZE" "Size")
+        NEW_SIZE=$(clean_yum_info "$CUR_SIZE" "Size")
+
+        NA="${PKGIS[0]}"
+        NA_BUFFER=${NA/./' '}
+        read -a NAARR <<< "$NA_BUFFER"
+
+        VR="${PKGIS[1]}"
+        VR_BUFFER=${VR/-/' '}
+        read -a VRARR <<< "$VR_BUFFER"
+
+        PKGNAME="$(whitespace_fill $((TWIDTH+WIDTHFILLER)) ${NAARR[0]})"
+        ARCH="$(whitespace_fill $TWIDTH ${NAARR[1]})"
+
+        VER_BUFFER="$INSTALLEDVER --> ${VRARR[0]}"
+        VER="$(whitespace_fill $TWIDTH "$VER_BUFFER")"
+        RELEASE="$(whitespace_fill $TWIDTH ${VRARR[1]})"
+        SIZE="$CUR_SIZE --> $NEW_SIZE"
+        SIZE="$(whitespace_fill $TWIDTH "$SIZE")"
+        REPO="$(whitespace_fill $TWIDTH ${PKGIS[2]} r)"
+        OUTPUT+="$PKGNAME$ARCH$VER$RELEASE$SIZE$REPO\n"
+    done
+    echo
+    printf "$HEADER$OUTPUT"
+    echo 
+    ask_update
 }
 
 check_update() {
