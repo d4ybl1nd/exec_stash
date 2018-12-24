@@ -3,10 +3,17 @@
 # check the packge and feed right url for the bash sript
 # https://github.com/nodesource/distributions/blob/master/README.md#user-content-enterprise-linux-based-distributions
 
+# versions
+# NodeJS 11.x -- https://rpm.nodesource.com/setup_11.x 
+# NodeJS 10.x -- https://rpm.nodesource.com/setup_10.x 
+# NodeJS 8.x  -- https://rpm.nodesource.com/setup_8.x 
+
 # (@Repo)
-if [[ -z "$1" && $1 == "https://rpm.nodesource.com/setup"* ]]; then
+if [[ -n "$1" && $1 == "https://rpm.nodesource.com/setup"* ]]; then
     sudo yum erase nodejs -y
-    curl -sL "$1" | sudo -E bash -
+    sudo yum clean all
+    sudo curl -sL "$1" | sudo -E bash -
     sudo yum install -y nodejs
+    node --version
 fi
 
